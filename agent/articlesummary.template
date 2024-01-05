@@ -1,0 +1,21 @@
+$ARTICLE_TITLE
+
+<blockquote>
+<strong>作者名称：</strong>$AUTHOR_NAME
+<strong>作者简介：</strong>$AUTHOR_INTRO
+<strong>微信号：</strong>$AUTHOR_WECHAT
+</blockquote>
+
+<img src="$ARTICLE_IMAGE" alt="" />
+
+<blockquote>
+<strong>关键词：</strong>$ARTICLE_TAGS
+<strong>文章摘要：</strong>
+$ARTICLE_SUMMARY
+</blockquote>
+
+<blockquote>
+<strong>原文链接：</strong><a href="$ARTICLE_ORIGINAL">阅读原文</a>
+<strong>原文字数：</strong>$ARTICLE_WORDS
+<strong>阅读时长：</strong>$ARTICLE_READTIMES
+</blockquote>
