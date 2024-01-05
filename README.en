@@ -1,0 +1,19 @@
+A command-line tool used to manage xuexiaigc website.
+
+## Configuration
+Please below envionment variables firstly.
+1. OPENAI_API_KEY: OpenAI API key, used to generate artical summary.
+2. COS_SECRET_ID: Tencent COS secret id, need has priorities to read/write COS Bucket.
+3. COS_SECRET_KEY: Tencent COS secret key, need has priorities to read/write COS Bucket.
+4. COS_BUCKET: Tencent COS bucket, used to store some website materials.
+5. COS_REGION: Tencent COS region, where bucket created.
+
+## Sub Commands
+### webscreenshot
+Get website screenshot and stored it in COS.
+
+### webvisits
+Get website visits in latest three months.
+
+### articlesummary
+Get article summary and generate formated text used to paste in xuexiaigc.
