@@ -57,7 +57,7 @@ class Op(object):
 
             log_fd = LogFD("webscreenshot")
             screenshot_agent = ScreenshotAgent(cos_client, args.cos_prefix, args.output, log_fd,
-                                               args.just_upload_to_cos, args.just_do_ci_process)
+                                               args.force, args.just_upload_to_cos, args.just_do_ci_process)
             if args.file:
                 process_file_lines(args.file, screenshot_agent.process_one_record, screenshot_agent)
             else:
@@ -114,6 +114,7 @@ def usage_parser():
     sub_parser = parser.add_subparsers()
     parser_screenshot = sub_parser.add_parser("webscreenshot", help="Generate website screenshot and stored in COS")
     parser_screenshot.add_argument('-p', '--cos-prefix', help='Specify COS object prefix', default='original-screenshot/', type=str, required=False)
+    parser_screenshot.add_argument('-f', '--force', help='Force upload screenshot(png) to cos and do CI process', action="store_true", default=False)
     parser_screenshot.add_argument('-u', '--just_upload_to_cos', help='Just upload screenshot(png) to cos', action="store_true", default=False)
     parser_screenshot.add_argument('-c', '--just_do_ci_process', help='Just do ci process to transfer screenshot(png) to regular jpeg', action="store_true", default=False)
     parser_screenshot.set_defaults(func=Op.webscreenshot)

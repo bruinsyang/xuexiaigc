@@ -13,10 +13,11 @@ from urllib.parse import urlparse
 from common.agent import Agent
 
 class ScreenshotAgent(Agent):
-    def __init__(self, cos_client, cos_prefix, output, log_fd, just_upload_to_cos, just_do_ci_process):
+    def __init__(self, cos_client, cos_prefix, output, log_fd, force, just_upload_to_cos, just_do_ci_process):
         Agent.__init__(self, output, log_fd)
         self._cos_client = cos_client
         self._cos_prefix = cos_prefix
+        self._force = force
         self._just_upload_to_cos = just_upload_to_cos
         self._just_do_ci_process = just_do_ci_process
         self._local_file = ""
@@ -130,7 +131,7 @@ class ScreenshotAgent(Agent):
 
         # 2. Check the screenshot exist or not on COS
         result = self.is_screenshot_exist(url)
-        if self._just_do_ci_process == False and result:
+        if self._force == False and self._just_do_ci_process == False and result:
             return True
 
         # 3. Capture website screenshot
