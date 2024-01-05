@@ -1,0 +1,19 @@
+用来管理xuexiaig网站的python工具集.
+
+## 配置
+在运行python脚本之前，请根据需要配置下面的环境变量。
+1. OPENAI_API_KEY: OpenAI API key，在生成文章的摘要时需要。
+2. COS_SECRET_ID: 腾讯云对象存储COS的secret_id，需要要COS桶的读写权限。
+3. COS_SECRET_KEY: 腾讯云对象存储COS的secret_key，需要要COS桶的读写权限。
+4. COS_BUCKET: 腾讯云对象存储COS的存储桶，用来存储网站的素材。
+5. COS_REGION: 腾讯云对象存储COS的bucket所在的区域。
+
+## 支持的子命令
+### webscreenshot
+基于输入的文件或者命令行参数，获取网站的截图照片，并存储到COS中。
+
+### webvisits
+基于输入的文件或者命令行参数，获取网站过去三个月的访问数据，依次判断AIGC网站的热度。
+
+### articlesummary
+输入的文件或者命令行参数，获取文章的摘要，基于摘要模板输出文本，可以直接贴到后台新文章里。
