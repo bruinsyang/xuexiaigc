@@ -1,6 +1,7 @@
 import os
 import re
 import math
+import random
 import requests
 import html2text
 import urllib.parse
@@ -23,6 +24,11 @@ class ArticleSummaryAgent(Agent):
         chinese_count = len(chinese_characters)
         english_count = len(english_words)
         return chinese_count + english_count
+
+    def get_random_article_image(self, cos_prefix='article-images/sucai'):
+        cos_objects = self._cos_clicent.list_objests_with_prefix(cos_prefix)
+        rnum = random.randint(0, len(cos_objects) - 1)
+        return self._cos_client.get_object_url(cos_objects[rnum])
 
     def url2document(self, url):
         document = {}
@@ -54,7 +60,7 @@ class ArticleSummaryAgent(Agent):
                 wxw_img = content_p.find(class_="rich_pages wxw-img js_insertlocalimg").get('data-src')
                 document['image'] = wxw_img
             except Exception as e:
-                document['image'] = ''
+                document['image'] = self.get_random_article_image()
 
         article_html = str(content_p)
         markdown_content = html2text.html2text(article_html, bodywidth=0)

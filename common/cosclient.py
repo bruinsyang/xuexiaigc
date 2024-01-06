@@ -22,6 +22,30 @@ class COSClient:
             return None
         return object_info
 
+    def list_objests_with_prefix(self, prefix):
+        objects = []
+        marker = ""
+        while True:
+            try:
+                response = self._client.list_objects(
+                    Bucket=bucket,
+                    Prefix=prefix,
+                    Marker=marker,
+                    MaxKeys=1000,
+                )
+                if 'Contents' in response:
+                    lists = response['Contents']
+                    for i in lists:
+                        object_key = i.get("Key")
+                        objects.append(object_key)
+
+                if response['IsTruncated'] == 'false':
+                    break
+                marker = response['NextMarker']
+            except Exception as e:
+                print(str(e))
+        return objects
+
     def upload_object_from_file(self, fpath, okey):
         try:
             response = self._client.upload_file(
