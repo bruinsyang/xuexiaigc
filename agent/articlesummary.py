@@ -9,11 +9,12 @@ from common.agent import Agent
 from bs4 import BeautifulSoup
 
 class ArticleSummaryAgent(Agent):
-    def __init__(self, cos_client, cos_prefix, openai_agent, output, log_fd):
+    def __init__(self, cos_client, cos_prefix, openai_agent, temperature, output, log_fd):
         Agent.__init__(self, output, log_fd)
         self._cos_client = cos_client
         self._cos_prefix = cos_prefix
         self._openai_agent = openai_agent
+        self._temperature = temperature
 
     def count_words_and_characters(self, text):
         chinese_characters = re.findall(r'[\u4e00-\u9fff]', text)
@@ -68,7 +69,7 @@ class ArticleSummaryAgent(Agent):
             {"role": "system", "content": system_content},
             {"role": "user", "content": doc_content},
         ]
-        response = self._openai_agent.chat_with_openai(messages)
+        response = self._openai_agent.chat_with_openai(messages, temperature=self._temperature)
         result = response.choices[0].message.content
         #print(result)
         if result:
@@ -78,12 +79,13 @@ class ArticleSummaryAgent(Agent):
             return None
 
     def get_content_summary(self, doc_content):
-        system_content = "你的任务是对输入的文本进行总结，并给出多个段落的简短摘要。"
+        #system_content = "你的任务分为两个步骤：第一步是对输出的文本提取AI相关的关键词，请以/分隔标签，返回5个最符合的AI标签，每个标签不超过4个字符，不要返回其他任何修饰类词语。第二步是对输出的文章进行总结，并给出分为多个段落的摘要。"
+        system_content = "你的任务是对输入的文章进行总结，并给出分为多个段落的摘要。"
         messages = [
             {"role": "system", "content": system_content},
             {"role": "user", "content": doc_content},
         ]
-        response = self._openai_agent.chat_with_openai(messages)
+        response = self._openai_agent.chat_with_openai(messages,  temperature=self._temperature)
         result = response.choices[0].message.content
 
         while response.choices[0].finish_reason == 'length':
@@ -131,7 +133,6 @@ class ArticleSummaryAgent(Agent):
         return hash_hex[:uuid_length]
 
     def upload_article_image(self, image_url):
-        #print(image_url)
         if len(image_url) == 0:
             return None
         image_name = self.generate_uuid(image_url) + ".jpeg"
@@ -186,7 +187,6 @@ class ArticleSummaryAgent(Agent):
             "$ARTICLE_ORIGINAL": url,
             "$ARTICLE_WORDS": doc['words'],
             "$ARTICLE_READTIMES": str(math.ceil(int(doc['words']) / 300)) + '分钟',
-            #"$ARTICLE_READTIMES": str(int(int(doc['words']) / 300)) + '分钟',
         }
         #print(article)
         self.generate_website_article(article)

@@ -5,14 +5,14 @@ class OpenAIAgent:
         self._model = model 
         self._client = OpenAI()
 
-    def chat_with_openai(self, messages, max_tokens=150, temperature=0):
+    def chat_with_openai(self, messages, max_tokens=2000, temperature=0.1):
         while True:
             #print("messages length:", len(messages))
             try:
                 response = self._client.chat.completions.create(
                     model=self._model,
                     messages=messages,
-                    #max_tokens=max_tokens,
+                    max_tokens=max_tokens,
                     temperature=temperature,
                 )
                 #print(response.choices[0].message.content)

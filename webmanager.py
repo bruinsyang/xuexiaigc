@@ -90,7 +90,8 @@ class Op(object):
 
             log_fd = LogFD("articlesummary")
             openai_agent = OpenAIAgent(args.openai_model)
-            article_agent = ArticleSummaryAgent(cos_client, args.cos_prefix, openai_agent, args.output, log_fd)
+            article_agent = ArticleSummaryAgent(cos_client, args.cos_prefix,
+                                                openai_agent, args.temperature, args.output, log_fd)
             if args.file:
                 process_file_lines(args.file, article_agent.process_one_record, article_agent)
             else:
@@ -103,9 +104,9 @@ def usage_parser():
     desc = """A command-line tool used to manage xuexiaigc website.
            """
     parser = ArgumentParser(description=desc)
-    parser.add_argument('-b', '--cos_bucket', help='Specify COS bucket', default='xuexiaigc-1253766168', type=str)
-    parser.add_argument('-r', '--cos_region', help='Specify COS region', default='ap-shanghai', type=str)
-    parser.add_argument('-o', '--output', help='Specify output file', default='', type=str)
+    parser.add_argument('-b', '--cos_bucket', help='COS bucket', default='xuexiaigc-1253766168', type=str)
+    parser.add_argument('-r', '--cos_region', help='COS region', default='ap-shanghai', type=str)
+    parser.add_argument('-o', '--output', help='Output file', default='', type=str)
 
     file_inline_group = parser.add_mutually_exclusive_group(required=True)
     file_inline_group.add_argument("-f", "--file", default='', type=str, help="use file as input")
@@ -113,7 +114,7 @@ def usage_parser():
 
     sub_parser = parser.add_subparsers()
     parser_screenshot = sub_parser.add_parser("webscreenshot", help="Generate website screenshot and stored in COS")
-    parser_screenshot.add_argument('-p', '--cos-prefix', help='Specify COS object prefix', default='original-screenshot/', type=str, required=False)
+    parser_screenshot.add_argument('-p', '--cos-prefix', help='COS object prefix', default='original-screenshot/', type=str, required=False)
     parser_screenshot.add_argument('-f', '--force', help='Force upload screenshot(png) to cos and do CI process', action="store_true", default=False)
     parser_screenshot.add_argument('-u', '--just_upload_to_cos', help='Just upload screenshot(png) to cos', action="store_true", default=False)
     parser_screenshot.add_argument('-c', '--just_do_ci_process', help='Just do ci process to transfer screenshot(png) to regular jpeg', action="store_true", default=False)
@@ -123,8 +124,9 @@ def usage_parser():
     parser_visits.set_defaults(func=Op.webvisits)
 
     parser_articlesummary = sub_parser.add_parser("articlesummary", help="Generate wechat article summary")
-    parser_articlesummary.add_argument('-p', '--cos_prefix', help='Specify COS object prefix', default='article-images/', type=str, required=False)
-    parser_articlesummary.add_argument('-m', '--openai_model', help='Specify OpenAI model', default='gpt-3.5-turbo-16k-0613', type=str, required=False)
+    parser_articlesummary.add_argument('-p', '--cos_prefix', help='COS object prefix', default='article-images/', type=str, required=False)
+    parser_articlesummary.add_argument('-m', '--openai_model', help='OpenAI model', default='gpt-3.5-turbo-16k-0613', type=str, required=False)
+    parser_articlesummary.add_argument('-t', '--temperature', help='OpenAI temperature, range is from 0 to 2', default='0.1', type=float, required=False)
     parser_articlesummary.set_defaults(func=Op.articlesummary)
 
     args = parser.parse_args()
