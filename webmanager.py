@@ -114,7 +114,7 @@ def usage_parser():
 
     sub_parser = parser.add_subparsers()
     parser_screenshot = sub_parser.add_parser("webscreenshot", help="Generate website screenshot and stored in COS")
-    parser_screenshot.add_argument('-p', '--cos-prefix', help='COS object prefix', default='original-screenshot/', type=str, required=False)
+    parser_screenshot.add_argument('-p', '--cos-prefix', help='COS object prefix used to store website screenshot', default='original-screenshot/', type=str, required=False)
     parser_screenshot.add_argument('-f', '--force', help='Force upload screenshot(png) to cos and do CI process', action="store_true", default=False)
     parser_screenshot.add_argument('-u', '--just_upload_to_cos', help='Just upload screenshot(png) to cos', action="store_true", default=False)
     parser_screenshot.add_argument('-c', '--just_do_ci_process', help='Just do ci process to transfer screenshot(png) to regular jpeg', action="store_true", default=False)
@@ -124,7 +124,7 @@ def usage_parser():
     parser_visits.set_defaults(func=Op.webvisits)
 
     parser_articlesummary = sub_parser.add_parser("articlesummary", help="Generate wechat article summary")
-    parser_articlesummary.add_argument('-p', '--cos_prefix', help='COS object prefix', default='article-images/', type=str, required=False)
+    parser_articlesummary.add_argument('-p', '--cos_prefix', help='COS object prefix used to store article images', default='article-images/', type=str, required=False)
     parser_articlesummary.add_argument('-m', '--openai_model', help='OpenAI model', default='gpt-3.5-turbo-16k-0613', type=str, required=False)
     parser_articlesummary.add_argument('-t', '--temperature', help='OpenAI temperature, range is from 0 to 2', default='0.1', type=float, required=False)
     parser_articlesummary.set_defaults(func=Op.articlesummary)
