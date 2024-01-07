@@ -126,7 +126,7 @@ def usage_parser():
 
     parser_articlesummary = sub_parser.add_parser("articlesummary", help="Generate wechat article summary")
     parser_articlesummary.add_argument('-p', '--cos_prefix', help='COS object prefix used to store article images', default='article-images/', type=str, required=False)
-    parser_articlesummary.add_argument('-m', '--openai_model', help='OpenAI model', default='gpt-3.5-turbo-16k-0613', type=str, required=False)
+    parser_articlesummary.add_argument('-m', '--openai_model', help='OpenAI model', default='gpt-3.5-turbo-1106', type=str, required=False)
     parser_articlesummary.add_argument('-t', '--temperature', help='OpenAI temperature, range is from 0 to 2', default='0.1', type=float, required=False)
     parser_articlesummary.add_argument('-a', '--just_get_article_text', help='Just get article text, NOT do AI summary', action="store_true", default=False)
     parser_articlesummary.set_defaults(func=Op.articlesummary)

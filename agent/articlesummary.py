@@ -107,7 +107,7 @@ class ArticleSummaryAgent(Agent):
         return result
 
     def get_content_tags_summary(self, doc_content):
-        system_content = "你的任务分为2个步骤，步骤1是对输入的文本提取5个标签，每个标签不超过4个字，用/号分隔，输出为[tag1/tag2/tag3/tag4/tag5]。步骤2是对输入的文本做下内容摘要，给出分为多个段落的文章主要观点。"
+        system_content = "你的任务分为2个步骤，步骤1是对输入的文本提取5个标签，每个标签不超过4个字，用/号分隔，输出为[tag1/tag2/tag3/tag4/tag5]。步骤2是对输入的文本做下内容摘要，给出分为多个段落的总结。"
         messages = [
             {"role": "system", "content": system_content},
             {"role": "user", "content": doc_content},
@@ -125,9 +125,15 @@ class ArticleSummaryAgent(Agent):
 
         #print("Total result:", result)
         lines = result.split('\n')
-        first_line = lines[0]
-        tags = first_line.split('[')[1].split(']')[0].split('/')
-        summary = '\n'.join(lines[1:])
+        tag_line_num = 0
+        while True:
+            tag_line = lines[tag_line_num]
+            tags = tag_line.split('[')[1].split(']')[0].split('/')
+            if len(tags):
+                break
+            tag_line_num += 1
+
+        summary = '\n'.join(lines[tag_line_num + 1:])
         return tags, summary
 
     def get_suitable_content(self, src_content, max_length):
