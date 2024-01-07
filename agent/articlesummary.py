@@ -85,7 +85,6 @@ class ArticleSummaryAgent(Agent):
             return None
 
     def get_content_summary(self, doc_content):
-        #system_content = "你的任务分为两个步骤：第一步是对输出的文本提取AI相关的关键词，请以/分隔标签，返回5个最符合的AI标签，每个标签不超过4个字符，不要返回其他任何修饰类词语。第二步是对输出的文章进行总结，并给出分为多个段落的摘要。"
         system_content = "你的任务是对输入的文章进行总结，并给出分为多个段落的摘要。"
         messages = [
             {"role": "system", "content": system_content},
@@ -104,6 +103,30 @@ class ArticleSummaryAgent(Agent):
 
         #print("Total result:", result)
         return result
+
+    def get_content_tags_summary(self, doc_content):
+        system_content = "你的任务分为2个步骤，步骤1是对输入的文本提取5个标签，每个标签不超过4个字，用/号分隔，输出为[tag1/tag2/tag3/tag4/tag5]。步骤2是对输入的文本做下内容摘要，给出分为多个段落的文章主要观点。"
+        messages = [
+            {"role": "system", "content": system_content},
+            {"role": "user", "content": doc_content},
+        ]
+        response = self._openai_agent.chat_with_openai(messages,  temperature=self._temperature)
+        result = response.choices[0].message.content
+
+        while response.choices[0].finish_reason == 'length':
+            messages.append({"role": "user", "content": response.choices[0].message.content})
+            response = self._openai_agent.chat_with_openai(messages)
+            if response == None:
+                break
+
+            result += response.choices[0].message.content
+
+        #print("Total result:", result)
+        lines = result.split('\n')
+        first_line = lines[0]
+        tags = first_line.split('[')[1].split(']')[0].split('/')
+        summary = '\n'.join(lines[1:])
+        return tags, summary
 
     def get_suitable_content(self, src_content, max_length):
         content = ""
@@ -179,9 +202,10 @@ class ArticleSummaryAgent(Agent):
         doc = self.url2document(url)
         article_image = self.upload_article_image(doc['image'])
         scontent = self.get_suitable_content(doc['content'], openai_content_max_length)
-        tags = self.get_content_tags(scontent)
+        #tags = self.get_content_tags(scontent)
+        #article_summary = self.get_content_summary(scontent)
+        tags, article_summary = self.get_content_tags_summary(scontent)
         article_tags = self.generate_linkable_tags(tags)
-        article_summary = self.get_content_summary(scontent)
         article = {
             "$ARTICLE_TITLE": doc['title'],
             "$AUTHOR_NAME": doc['author']['name'],
