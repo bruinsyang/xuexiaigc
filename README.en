@@ -41,5 +41,5 @@ python3 webmanager.py -i https://www.xuexiaigc.com webvisits
 Get article summary and generate formated text used to paste in xuexiaigc.
 Example:
 ```sh
-python3 webmanager.py -i https://www.xuexiaigc.com https://mp.weixin.qq.com/s/izteCpW1xZlyqlOws9lHsg articlesummary
+python3 webmanager.py -i https://mp.weixin.qq.com/s/izteCpW1xZlyqlOws9lHsg articlesummary
 ```
