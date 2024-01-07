@@ -10,12 +10,13 @@ from common.agent import Agent
 from bs4 import BeautifulSoup
 
 class ArticleSummaryAgent(Agent):
-    def __init__(self, cos_client, cos_prefix, openai_agent, temperature, output, log_fd):
+    def __init__(self, cos_client, cos_prefix, openai_agent, temperature, jget_text, output, log_fd):
         Agent.__init__(self, output, log_fd)
         self._cos_client = cos_client
         self._cos_prefix = cos_prefix
         self._openai_agent = openai_agent
         self._temperature = temperature
+        self._jget_text = jget_text
 
     def count_words_and_characters(self, text):
         chinese_characters = re.findall(r'[\u4e00-\u9fff]', text)
@@ -31,7 +32,7 @@ class ArticleSummaryAgent(Agent):
         return self._cos_client.get_object_url(cos_objects[rnum])
 
     def url2document(self, url):
-        document = {}
+        document = {'url': url}
         response = requests.get(url)
         html_content = response.text
 
@@ -65,7 +66,8 @@ class ArticleSummaryAgent(Agent):
         article_html = str(content_p)
         markdown_content = html2text.html2text(article_html, bodywidth=0)
         document['words'] = str(self.count_words_and_characters(markdown_content))
-        document['content'] = markdown_content
+        tmp_content = re.sub(r'\n\s*\n', '\n\n', markdown_content)
+        document['content'] = re.sub(r'\n{2,}', '\n', tmp_content).strip()
         #print(document)
         return document
 
@@ -133,7 +135,7 @@ class ArticleSummaryAgent(Agent):
         total_characters = 0
         lines = src_content.split('\n')
         for line in lines:
-            line = line.strip()
+            line += '\n'
             line_characters = len(line)
             total_characters += line_characters
 
@@ -190,16 +192,27 @@ class ArticleSummaryAgent(Agent):
         for key, value in article.items():
             if value:
                 content = content.replace(key, value)
+        return content
 
+    def record_article_info(self, content):
         if self._output:
             with open(self._output, "a") as file:
                 file.write(content)
         else:
             print(content)
 
-    def wechat_article_summary(self, url):
+    def doc2content(self, doc, indent=''):
+        content = ""
+        for key, value in doc.items():
+            if isinstance(value, dict):
+                content += self.doc2content(value, indent + '  ')
+            else:
+                item = f'{indent}{key}: {value}\n'
+                content += item
+        return content
+
+    def wechat_article_summary(self, doc):
         openai_content_max_length = 14000
-        doc = self.url2document(url)
         article_image = self.upload_article_image(doc['image'])
         scontent = self.get_suitable_content(doc['content'], openai_content_max_length)
         #tags = self.get_content_tags(scontent)
@@ -214,16 +227,22 @@ class ArticleSummaryAgent(Agent):
             "$ARTICLE_IMAGE": article_image,
             "$ARTICLE_TAGS": article_tags,
             "$ARTICLE_SUMMARY": article_summary,
-            "$ARTICLE_ORIGINAL": url,
+            "$ARTICLE_ORIGINAL": doc['url'],
             "$ARTICLE_WORDS": doc['words'],
             "$ARTICLE_READTIMES": str(math.ceil(int(doc['words']) / 300)) + '分钟',
         }
         #print(article)
-        self.generate_website_article(article)
+        return article
 
     def process_one_record(self, record):
         print("processing record: ", record)
         tlist = re.split('\t', record)
         url = tlist[0]
-        self.wechat_article_summary(url)
+        doc = self.url2document(url)
+        if self._jget_text:
+            content = self.doc2content(doc)
+        else:
+            article = self.wechat_article_summary(doc)
+            content = self.generate_website_article(article)
+        self.record_article_info(content)
 

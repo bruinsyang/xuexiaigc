@@ -91,7 +91,8 @@ class Op(object):
             log_fd = LogFD("articlesummary")
             openai_agent = OpenAIAgent(args.openai_model)
             article_agent = ArticleSummaryAgent(cos_client, args.cos_prefix,
-                                                openai_agent, args.temperature, args.output, log_fd)
+                                                openai_agent, args.temperature,
+                                                args.just_get_article_text, args.output, log_fd)
             if args.file:
                 process_file_lines(args.file, article_agent.process_one_record, article_agent)
             else:
@@ -127,6 +128,7 @@ def usage_parser():
     parser_articlesummary.add_argument('-p', '--cos_prefix', help='COS object prefix used to store article images', default='article-images/', type=str, required=False)
     parser_articlesummary.add_argument('-m', '--openai_model', help='OpenAI model', default='gpt-3.5-turbo-16k-0613', type=str, required=False)
     parser_articlesummary.add_argument('-t', '--temperature', help='OpenAI temperature, range is from 0 to 2', default='0.1', type=float, required=False)
+    parser_articlesummary.add_argument('-a', '--just_get_article_text', help='Just get article text, NOT do AI summary', action="store_true", default=False)
     parser_articlesummary.set_defaults(func=Op.articlesummary)
 
     args = parser.parse_args()
