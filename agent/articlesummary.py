@@ -246,6 +246,10 @@ class ArticleSummaryAgent(Agent):
         url = tlist[0]
         doc = self.url2document(url)
         if self._jget_text:
+            messages = [
+                {"role": "user", "content": doc['content']},
+            ]
+            print("Document tokens:", self._openai_agent.num_tokens_from_messages(messages))
             content = self.doc2content(doc)
         else:
             article = self.wechat_article_summary(doc)
